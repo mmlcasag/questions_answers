@@ -28,9 +28,21 @@ def register():
 
         return '<h1>User created!</h1>'
 
-@app.route('/login')
+@app.route('/login', methods=['GET','POST'])
 def login():
-    return render_template('login.html')
+    if request.method == 'GET':
+        return render_template('login.html')
+    
+    if request.method == 'POST':
+        db = get_db()
+        user_cur = db.execute('select id, name, password from users where name = ?', [request.form['name']])
+        user_res = user_cur.fetchone()
+        close_db()
+        
+        if check_password_hash(user_res['password'], request.form['password']):
+            return '<h1>The password is correct!</h1>'
+        else:
+            return '<h1>The password is incorrect!</h1>'
 
 @app.route('/question')
 def question():
