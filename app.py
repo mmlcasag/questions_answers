@@ -7,18 +7,27 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.urandom(24)
 
-@app.route('/')
-def index():
-    user = None
+def get_logged_user():
+    user_res = None
+
     if 'user' in session:
         user = session['user']
-    
-    return render_template('home.html', user=user)
+
+        db = get_db()
+        user_cur = db.execute('select id, name, password, expert, admin from users where name = ?', [user])
+        user_res = user_cur.fetchone()
+        close_db()
+
+    return user_res
+
+@app.route('/')
+def index():
+    return render_template('home.html', logged_user=get_logged_user())
 
 @app.route('/register', methods=['GET','POST'])
 def register():
     if request.method == 'GET':
-        return render_template('register.html')
+        return render_template('register.html', logged_user=get_logged_user())
     
     if request.method == 'POST':
         values = [
@@ -38,7 +47,7 @@ def register():
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'GET':
-        return render_template('login.html')
+        return render_template('login.html', logged_user=get_logged_user())
     
     if request.method == 'POST':
         db = get_db()
@@ -55,23 +64,23 @@ def login():
 
 @app.route('/question')
 def question():
-    return render_template('question.html')
+    return render_template('question.html', logged_user=get_logged_user())
 
 @app.route('/answer')
 def answer():
-    return render_template('answer.html')
+    return render_template('answer.html', logged_user=get_logged_user())
 
 @app.route('/ask')
 def ask():
-    return render_template('ask.html')
+    return render_template('ask.html', logged_user=get_logged_user())
 
 @app.route('/unaswered')
 def unanswered():
-    return render_template('unaswered.html')
+    return render_template('unaswered.html', logged_user=get_logged_user())
 
 @app.route('/users')
 def users():
-    return render_template('users.html')
+    return render_template('users.html', logged_user=get_logged_user())
 
 @app.route('/logout')
 def logout():
