@@ -42,7 +42,9 @@ def register():
         db.commit()
         close_db()
 
-        return '<h1>User created!</h1>'
+        session['user'] = request.form['name']
+
+        return redirect(url_for('index'))
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -58,7 +60,7 @@ def login():
         if check_password_hash(user_res['password'], request.form['password']):
             session['user'] = user_res['name']
 
-            return '<h1>The password is correct!</h1>'
+            return redirect(url_for('index'))
         else:
             return '<h1>The password is incorrect!</h1>'
 
