@@ -82,7 +82,30 @@ def unanswered():
 
 @app.route('/users')
 def users():
-    return render_template('users.html', logged_user=get_logged_user())
+    db = get_db()
+    user_cur = db.execute('select id, name, expert, admin from users order by name')
+    users = user_cur.fetchall()
+    close_db()
+    
+    return render_template('users.html', logged_user=get_logged_user(), users=users)
+
+@app.route('/promote/<user_id>')
+def promote(user_id):
+    db = get_db()
+    db.execute('update users set expert = 1 where id = ?', [user_id])
+    db.commit()
+    close_db()
+    
+    return redirect(url_for('users'))
+
+@app.route('/revoke/<user_id>')
+def revoke(user_id):
+    db = get_db()
+    db.execute('update users set expert = 0 where id = ?', [user_id])
+    db.commit()
+    close_db()
+    
+    return redirect(url_for('users'))
 
 @app.route('/logout')
 def logout():
