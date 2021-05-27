@@ -10,6 +10,6 @@ create table questions
 ( id integer primary key autoincrement
 , question_text text not null
 , questioned_by_id integer not null
-, answer_text text not null
+, answer_text text
 , answered_by_id integer not null
 ) ;
